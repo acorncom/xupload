@@ -49,6 +49,12 @@ class XUpload extends CJuiInputWidget {
     public $imageProcessing = true;
 
     /**
+     * Whether to use the default fileupload-ui plugin
+     * @var bool defaults to true
+     */
+    public $uiPlugin = true;
+
+    /**
      * Whether or not to include our CSS style
      * @var bool defaults to true
      */
@@ -97,15 +103,17 @@ class XUpload extends CJuiInputWidget {
 
         $model = $this -> model;
 
-        if ($this -> uploadTemplate === null) {
-            $this -> uploadTemplate = "#template-upload";
-        }
-        if ($this -> downloadTemplate === null) {
-            $this -> downloadTemplate = "#template-download";
-        }
+        if($this->uiPlugin) {
+            if ($this -> uploadTemplate === null) {
+                $this -> uploadTemplate = "#template-upload";
+            }
+            if ($this -> downloadTemplate === null) {
+                $this -> downloadTemplate = "#template-download";
+            }
 
-        $this -> render($this->uploadView);
-        $this -> render($this->downloadView);
+            $this -> render($this->uploadView);
+            $this -> render($this->downloadView);
+        }
 
         if (!isset($this -> htmlOptions['enctype'])) {
             $this -> htmlOptions['enctype'] = 'multipart/form-data';
@@ -147,11 +155,6 @@ class XUpload extends CJuiInputWidget {
         $assets = dirname(__FILE__) . '/assets';
         $baseUrl = Yii::app() -> assetManager -> publish($assets);
         if (is_dir($assets)) {
-            if($this->registerCSS){
-                Yii::app() -> clientScript -> registerCssFile($baseUrl . '/css/jquery.fileupload-ui.css');
-            }
-            //The Templates plugin is included to render the upload/download listings
-            Yii::app() -> clientScript -> registerScriptFile($baseUrl . '/js/tmpl.min.js', CClientScript::POS_END);
             // The basic File Upload plugin
             Yii::app() -> clientScript -> registerScriptFile($baseUrl . '/js/jquery.fileupload.js', CClientScript::POS_END);
             if($this->previewImages || $this->imageProcessing){
@@ -165,7 +168,14 @@ class XUpload extends CJuiInputWidget {
                 Yii::app() -> clientScript -> registerScriptFile($baseUrl . '/js/jquery.fileupload-ip.js', CClientScript::POS_END);
             }
             //The File Upload user interface plugin
-            Yii::app() -> clientScript -> registerScriptFile($baseUrl . '/js/jquery.fileupload-ui.js', CClientScript::POS_END);
+            if($this->uiPlugin) {
+                Yii::app() -> clientScript -> registerScriptFile($baseUrl . '/js/jquery.fileupload-ui.js', CClientScript::POS_END);
+                //The Templates plugin is included to render the upload/download listings
+                Yii::app() -> clientScript -> registerScriptFile($baseUrl . '/js/tmpl.min.js', CClientScript::POS_END);
+                if($this->registerCSS){
+                    Yii::app() -> clientScript -> registerCssFile($baseUrl . '/css/jquery.fileupload-ui.css');
+                }
+            }
 
             //The localization script
             $messages = CJavaScript::encode(array(
